@@ -27,5 +27,14 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        // Force-configure Cloudinary from OS env (bypasses config cache)
+        // Config cache may have been created before CLOUDINARY_URL was set
+        $cloudinaryUrl = getenv('CLOUDINARY_URL')
+            ?: ($_SERVER['CLOUDINARY_URL'] ?? null)
+            ?: ($_ENV['CLOUDINARY_URL'] ?? null);
+        if ($cloudinaryUrl) {
+            config(['cloudinary.cloud_url' => $cloudinaryUrl]);
+        }
     }
 }
