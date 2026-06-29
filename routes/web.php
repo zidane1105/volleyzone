@@ -53,3 +53,13 @@ Route::get('/run-migrations', function () {
         return 'Error migrating database: ' . $e->getMessage();
     }
 });
+
+// Temporary route to seed data on Vercel
+Route::get('/run-seeders', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return 'Database seeded successfully!<br><pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Error seeding database: ' . $e->getMessage();
+    }
+});
