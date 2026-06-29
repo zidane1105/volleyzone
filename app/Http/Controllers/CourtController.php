@@ -59,7 +59,9 @@ class CourtController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('courts', 'public');
+            $imagePath = cloudinary()->upload($request->file('image')->getRealPath(), [
+                'folder' => 'volleyzone/courts'
+            ])->getSecurePath();
         }
 
         Court::create([
@@ -68,7 +70,7 @@ class CourtController extends Controller
             'price_per_hour' => $request->price_per_hour,
             'facilities'     => $request->facilities ?? [],
             'is_active'      => $request->boolean('is_active', true),
-            'image_path'     => $imagePath ? Storage::url($imagePath) : null,
+            'image_path'     => $imagePath,
         ]);
 
         return redirect()->route('admin.courts.index')
@@ -99,12 +101,16 @@ class CourtController extends Controller
         $imagePath = $court->image_path;
 
         if ($request->hasFile('image')) {
-            // Hapus foto lama jika ada
-            if ($court->image_path) {
-                $oldPath = str_replace('/storage/', '', $court->image_path);
-                Storage::disk('public')->delete($oldPath);
+            // Hapus foto lama di Cloudinary jika ada
+            if ($court->image_path && str_contains($court->image_path, 'cloudinary')) {
+                $parts = explode('/', parse_url($court->image_path, PHP_URL_PATH));
+                $filename = end($parts);
+                $publicId = 'volleyzone/courts/' . pathinfo($filename, PATHINFO_FILENAME);
+                try { cloudinary()->destroy($publicId); } catch (\Exception $e) {}
             }
-            $imagePath = Storage::url($request->file('image')->store('courts', 'public'));
+            $imagePath = cloudinary()->upload($request->file('image')->getRealPath(), [
+                'folder' => 'volleyzone/courts'
+            ])->getSecurePath();
         }
 
         $court->update([
@@ -123,10 +129,13 @@ class CourtController extends Controller
     // Admin: Hapus lapangan
     public function destroy(Court $court)
     {
-        if ($court->image_path) {
-            $oldPath = str_replace('/storage/', '', $court->image_path);
-            Storage::disk('public')->delete($oldPath);
+        if ($court->image_path && str_contains($court->image_path, 'cloudinary')) {
+            $parts = explode('/', parse_url($court->image_path, PHP_URL_PATH));
+            $filename = end($parts);
+            $publicId = 'volleyzone/courts/' . pathinfo($filename, PATHINFO_FILENAME);
+            try { cloudinary()->destroy($publicId); } catch (\Exception $e) {}
         }
+
         $court->delete();
 
         return redirect()->route('admin.courts.index')
