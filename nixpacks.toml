@@ -1,0 +1,14 @@
+[providers]
+  php = "php"
+  node = "node"
+
+[phases.build]
+  cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "npm ci",
+    "npm run build"
+  ]
+
+[start]
+  # Jalankan storage:link, lalu migrate database MySQL, lalu nyalakan web server bawaan Nixpacks (PHP-FPM + Nginx)
+  cmd = "php artisan storage:link && php artisan migrate --force && php-fpm -y /assets/php-fpm.conf & nginx -c /assets/nginx.conf"
