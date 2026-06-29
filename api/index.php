@@ -5,7 +5,19 @@
 // Force HTTPS scheme for all URLs (Vercel terminates SSL before PHP)
 $_SERVER['HTTPS'] = 'on';
 $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
-$_SERVER['SERVER_PORT'] = 443;
+
+// Explicitly set env vars that vercel-php may not propagate properly
+// These match the values in vercel.json env section
+$forceEnv = [
+    'CLOUDINARY_URL' => 'cloudinary://833929652849232:qhtMHUhAFkUV6mWS5zx8pOFt2ZU@ddotmjjow',
+];
+foreach ($forceEnv as $key => $value) {
+    if (empty(getenv($key)) && empty($_ENV[$key] ?? '')) {
+        putenv("$key=$value");
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+    }
+}
 
 // Serve static files from public/build/ directly
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
