@@ -15,38 +15,35 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
+        User::firstOrCreate(['email' => 'admin@volleyzone.com'], [
             'name' => 'Admin VolleyZone',
             'email' => 'admin@volleyzone.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
 
-        User::factory()->create([
+        User::firstOrCreate(['email' => 'user@volleyzone.com'], [
             'name' => 'User VolleyZone',
             'email' => 'user@volleyzone.com',
             'password' => bcrypt('password'),
             'role' => 'user',
         ]);
 
-        \App\Models\Court::create([
-            'name' => 'Lapangan Utama (Indoor)',
+        \App\Models\Court::firstOrCreate(['name' => 'Lapangan Utama (Indoor)'], [
             'description' => 'Lapangan voli indoor standar internasional dengan permukaan taraflex.',
             'facilities' => ['Tribun', 'Kamar Ganti', 'AC', 'Papan Skor Digital'],
             'price_per_hour' => 150000.00,
             'is_active' => true,
         ]);
 
-        \App\Models\Court::create([
-            'name' => 'Lapangan B (Outdoor)',
+        \App\Models\Court::firstOrCreate(['name' => 'Lapangan B (Outdoor)'], [
             'description' => 'Lapangan voli outdoor dengan lantai plester berstandar. Cocok untuk latihan santai dan pertandingan persahabatan.',
             'facilities' => ['Tribun Mini', 'Kamar Ganti', 'Penerangan Malam'],
             'price_per_hour' => 80000.00,
             'is_active' => true,
         ]);
 
-        \App\Models\Court::create([
-            'name' => 'Lapangan C (Semi-Indoor)',
+        \App\Models\Court::firstOrCreate(['name' => 'Lapangan C (Semi-Indoor)'], [
             'description' => 'Lapangan beratap dengan sirkulasi udara alami. Nyaman dipakai bermain tanpa takut kehujanan.',
             'facilities' => ['Kamar Ganti', 'Kantin', 'Parkir Luas', 'Papan Skor'],
             'price_per_hour' => 120000.00,
